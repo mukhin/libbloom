@@ -1,0 +1,48 @@
+=== LIBBLOOM
+
+by Andrey Mukhin <a.mukhin77@gmail.com>
+
+== What is libbloom?
+libbloom is a simple classes set that provides bloom filter technology.
+The Bloom filter is a space-efficient probabilistic data structure that is used
+to test whether an element is a member of a set (see http://en.wikipedia.org/wiki/Bloom_filter).
+
+== How it works
+First of all you must define main parameters:
+  - type of elements (must be C++ POD type)
+  - type of return-value of the hash function
+  - false positives
+  - max number of elements
+  - hash function which you want to use
+  - initialization vector for the hash function
+  - and maybe number of hash functions
+
+You must set all of those parameters into the Bloom class constructor.
+For example:
+  Bloom<unsigned long, unsigned> b(1000000, 1., 0, &bloom::FNVHash);
+  - type of elements -- unsigned long
+  - type of return-value of the hash function -- unsigned
+  - false positives -- 1.(percent)
+  - max number of elements -- 1000000
+  - hash function wich you want to use -- bloom::FNVHash
+  - initialization vector for the hash function -- 0
+
+So, when we have constructed Bloom object, we can get such values as:
+  - min number of bits that our bloom filter needs -- b.getBitsNumber()
+  - min number of bytes -- b.getBytesNumber()
+
+Now we can create bloom filter storage, for example:
+  unsigned char bloom_storage[b.getBytesNumber()];
+
+Before starting to work with the filter we must specify a storage for it:
+  b.setBitStorage(bloom_storage, b.getBytesNumber());
+
+And in the end we can put any elements into the storage.
+  unsigned long e = 128500;
+  bool f_new_element = b.fillBitSet(e);
+
+When this work is done we can specify a new storage, e.g.:
+  b.setBitStorage(....);
+
+Thus libbloom provides only bloom filter algorithm and doesn't include hash functions or storages.
+Therefore we can use different combinations of functions and storages we need.
